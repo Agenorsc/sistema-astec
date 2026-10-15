@@ -334,3 +334,20 @@ Para rodar a suíte completa de testes de repositório e consultas DTO:
 ```powershell
 .\mvnw test
 ```
+
+---
+
+## 6. Endpoints da API REST (JSON no Navegador)
+
+Teste das rotas da API direto no navegador ou no Postman/Insomnia:
+
+- **Listar todos os Chamados:**
+  - `http://localhost:8080/api/tickets`
+- **Listar Usuários (Clientes, Técnicos, Admin):**
+  - `http://localhost:8080/api/usuarios`
+- **Listar Equipamentos industriais:**
+  - `http://localhost:8080/api/equipamentos`
+- **Estatísticas de Tickets por Máquina (Consulta DTO):**
+  - `http://localhost:8080/api/tickets/estatisticas/equipamentos`
+- **Estatísticas de Tickets por Status:**
+  - `http://localhost:8080/api/tickets/estatisticas/status`
