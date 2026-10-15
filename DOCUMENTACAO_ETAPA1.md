@@ -15,7 +15,7 @@
 - **Felipe Santos**
 - **Henrique Cezar da Silveira**
 
-**Link do GitHub:** *A definir*
+**Link do GitHub:** (https://github.com/Agenorsc/sistema-astec)
 
 ---
 
