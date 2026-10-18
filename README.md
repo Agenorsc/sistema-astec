@@ -10,8 +10,8 @@
 ### Sistema de Gestão de Assistência Técnica Especializada
 **Documentação Oficial e Backend – Etapa 1: Backend, Modelagem e Requisitos**
 
-![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.4-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Java](https://img.shields.io/badge/Java-25_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.16-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
 ![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white)
 ![H2 Database](https://img.shields.io/badge/H2_Database-In--Memory-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![JUnit 5](https://img.shields.io/badge/JUnit-5-25A162?style=for-the-badge&logo=junit5&logoColor=white)
@@ -99,6 +99,7 @@ Desenvolver um sistema web completo para centralizar e organizar o gerenciamento
 | **RNF07** | Controle de SLA | Gestão de prazos máximos de primeira resposta e resolução definitiva de acordo com a urgência (Crítica, Alta, Média, Baixa). |
 | **RNF08** | Proteção de Dados (LGPD) | Proteção e sigilo de dados sensíveis de contato e histórico industrial em conformidade com a LGPD. |
 | **RNF09** | Padrões de Integração (RESTful) | Backend estruturado sob a arquitetura REST com payloads padronizados em JSON e códigos de status HTTP semânticos. |
+| **RNF10** | Banco de Dados e Persistência | Os dados do sistema devem ser mapeados para um banco relacional usando Spring Data JPA. Nesta etapa, será utilizado o H2 em memória, com criação e atualização do esquema pelo Hibernate. Os dados são temporários e não permanecem após o encerramento da aplicação. |
 
 ---
 
@@ -310,7 +311,7 @@ classDiagram
 ## 5. Como Executar o Projeto
 
 ### Pré-requisitos
-- **Java 17+** instalado
+- **JDK 25 LTS** instalado
 - **Maven** (ou utilizar o wrapper `./mvnw` incluso)
 
 ### Passos de Execução
