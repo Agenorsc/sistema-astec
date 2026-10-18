@@ -29,7 +29,7 @@
 | **Felipe Santos** | Engenharia de Requisitos & Mapeamento de Entidades |
 | **Henrique Cezar da Silveira** | Camada de Repositórios & Testes Automatizados |
 
-- **Repositório Git:** A definir (https://github.com/...)
+- **Repositório Git:** A definir (https://github.com/Agenorsc/sistema-astec)
 - **Instituição:** Centro Universitário Católica de Santa Catarina (Católica SC)
 - **Fase:** 5ª Fase - Engenharia de Software
 
