@@ -72,6 +72,7 @@ Desenvolver um sistema web para centralizar e organizar o gerenciamento das soli
 - **RNF07 - Controle de SLA:** Configuração de prazos máximos de primeira resposta e solução definitiva de acordo com a urgência do chamado.
 - **RNF08 - Proteção de Dados (LGPD):** Guardar dados de contato e históricos de atendimento respeitando integralmente a LGPD.
 - **RNF09 - Padrões de Integração (API RESTful):** O backend deve ser projetado sob a arquitetura REST (JSON), garantindo comunicação padronizada.
+- **RNF10 - Banco de Dados e Persistência:** Os dados do sistema devem ser mapeados para um banco relacional usando Spring Data JPA. Nesta etapa, será utilizado o H2 em memória, com criação e atualização do esquema pelo Hibernate. Os dados são temporários e não permanecem após o encerramento da aplicação.
 
 ---
 
