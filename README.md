@@ -29,7 +29,7 @@
 | **Felipe Santos** | Engenharia de Requisitos & Mapeamento de Entidades |
 | **Henrique Cezar da Silveira** | Camada de Repositórios & Testes Automatizados |
 
-- **Repositório Git:** (https://github.com/Agenorsc/sistema-astec)
+- **Repositório Git:** https://github.com/Agenorsc/sistema-astec
 - **Instituição:** Centro Universitário Católica de Santa Catarina (Católica SC)
 - **Fase:** 5ª Fase - Engenharia de Software
 
@@ -99,6 +99,7 @@ Desenvolver um sistema web completo para centralizar e organizar o gerenciamento
 | **RNF07** | Controle de SLA | Gestão de prazos máximos de primeira resposta e resolução definitiva de acordo com a urgência (Crítica, Alta, Média, Baixa). |
 | **RNF08** | Proteção de Dados (LGPD) | Proteção e sigilo de dados sensíveis de contato e histórico industrial em conformidade com a LGPD. |
 | **RNF09** | Padrões de Integração (RESTful) | Backend estruturado sob a arquitetura REST com payloads padronizados em JSON e códigos de status HTTP semânticos. |
+| **RNF10** | Banco de Dados e Persistência | Os dados do sistema devem ser mapeados para um banco relacional usando Spring Data JPA. Nesta etapa, será utilizado o H2 em memória, com criação e atualização do esquema pelo Hibernate. Os dados são temporários e não permanecem após o encerramento da aplicação. |
 
 ---
 
