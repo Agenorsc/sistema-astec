@@ -84,7 +84,6 @@ Desenvolver um sistema web completo para centralizar e organizar o gerenciamento
 | **RF08** | Painel do Técnico/Admin | Central de atendimento para visualização e filtragem global de todos os chamados da empresa. |
 | **RF09** | Laudo Técnico e Peças | O técnico registra o diagnóstico/solução aplicada, tempo de trabalho em horas e peças substituídas com cálculo de valores. |
 | **RF10** | Avaliação do Atendimento | O cliente avalia o atendimento com nota de 1 a 5 estrelas e comentário após a resolução. |
-| **RF11** | Reabertura de Ticket | O cliente pode reabrir um chamado encerrado em até 7 dias caso o problema no mesmo equipamento volte a ocorrer. |
 
 ### 2.2 Requisitos Não Funcionais (RNF)
 
