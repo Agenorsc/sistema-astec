@@ -3,6 +3,7 @@ package br.com.astec.controller;
 import br.com.astec.model.Ticket;
 import br.com.astec.model.enums.StatusTicketEnum;
 import br.com.astec.repository.TicketRepository;
+import br.com.astec.repository.UsuarioRepository;
 import br.com.astec.repository.dto.TicketContagemPorEquipamentoDTO;
 import br.com.astec.repository.dto.TicketContagemPorStatusDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class TicketController {
 
     @Autowired
     private TicketRepository ticketRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping
     public List<Ticket> listarTickets(
@@ -57,6 +61,17 @@ public class TicketController {
             ticketRepository.save(ticket);
             return ResponseEntity.ok(ticket);
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/tecnico")
+    public ResponseEntity<Ticket> atribuirTecnico(@PathVariable Long id, @RequestParam Long tecnicoId) {
+        return ticketRepository.findById(id).flatMap(ticket ->
+                usuarioRepository.findById(tecnicoId).map(tecnico -> {
+                    ticket.atribuirTecnico(tecnico);
+                    ticketRepository.save(ticket);
+                    return ResponseEntity.ok(ticket);
+                })
+        ).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/estatisticas/equipamentos")

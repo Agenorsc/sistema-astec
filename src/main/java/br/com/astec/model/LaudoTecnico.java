@@ -18,6 +18,7 @@ public class LaudoTecnico {
 
     private Double horasTrabalhadas;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "ticket_id", nullable = false, unique = true)
     private Ticket ticket;

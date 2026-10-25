@@ -1,5 +1,6 @@
 package br.com.astec.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class Avaliacao {
     @Column(nullable = false)
     private LocalDateTime dataAvaliacao;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "ticket_id", nullable = false, unique = true)
     private Ticket ticket;
