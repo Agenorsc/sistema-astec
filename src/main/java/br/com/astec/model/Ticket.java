@@ -41,6 +41,18 @@ public class Ticket {
     @Column(nullable = false)
     private LocalDateTime dataCriacao;
 
+    @Column
+    private LocalDateTime prazoPrimeiraResposta;
+
+    @Column
+    private LocalDateTime prazoResolucao;
+
+    @Column
+    private LocalDateTime dataPrimeiraResposta;
+
+    @Column
+    private LocalDateTime dataResolucao;
+
     private LocalDateTime dataFechamento;
 
     @ManyToOne
@@ -69,6 +81,11 @@ public class Ticket {
     @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL)
     private Avaliacao avaliacao;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("dataAlteracao ASC")
+    private List<HistoricoStatusTicket> historicoStatus = new ArrayList<>();
+
     public Ticket() {
         this.dataCriacao = LocalDateTime.now();
         this.status = StatusTicketEnum.ABERTO;
@@ -90,9 +107,20 @@ public class Ticket {
     }
 
     public void alterarStatus(StatusTicketEnum novoStatus) {
+        StatusTicketEnum statusAnterior = this.status;
         this.status = novoStatus;
-        if (novoStatus == StatusTicketEnum.RESOLVIDO || novoStatus == StatusTicketEnum.FECHADO) {
+        if (novoStatus == StatusTicketEnum.FECHADO) {
             this.dataFechamento = LocalDateTime.now();
+        }
+        if (novoStatus == StatusTicketEnum.RESOLVIDO && dataResolucao == null) {
+            this.dataResolucao = LocalDateTime.now();
+        }
+        if (novoStatus == StatusTicketEnum.EM_ATENDIMENTO
+                && statusAnterior == StatusTicketEnum.RESOLVIDO) {
+            this.dataResolucao = null;
+        }
+        if (novoStatus != StatusTicketEnum.FECHADO) {
+            this.dataFechamento = null;
         }
     }
 
@@ -107,8 +135,6 @@ public class Ticket {
         this.status = StatusTicketEnum.FECHADO;
         this.dataFechamento = LocalDateTime.now();
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -174,6 +200,38 @@ public class Ticket {
         this.dataCriacao = dataCriacao;
     }
 
+    public LocalDateTime getPrazoPrimeiraResposta() {
+        return prazoPrimeiraResposta;
+    }
+
+    public void setPrazoPrimeiraResposta(LocalDateTime prazoPrimeiraResposta) {
+        this.prazoPrimeiraResposta = prazoPrimeiraResposta;
+    }
+
+    public LocalDateTime getPrazoResolucao() {
+        return prazoResolucao;
+    }
+
+    public void setPrazoResolucao(LocalDateTime prazoResolucao) {
+        this.prazoResolucao = prazoResolucao;
+    }
+
+    public LocalDateTime getDataPrimeiraResposta() {
+        return dataPrimeiraResposta;
+    }
+
+    public void setDataPrimeiraResposta(LocalDateTime dataPrimeiraResposta) {
+        this.dataPrimeiraResposta = dataPrimeiraResposta;
+    }
+
+    public LocalDateTime getDataResolucao() {
+        return dataResolucao;
+    }
+
+    public void setDataResolucao(LocalDateTime dataResolucao) {
+        this.dataResolucao = dataResolucao;
+    }
+
     public LocalDateTime getDataFechamento() {
         return dataFechamento;
     }
@@ -236,5 +294,9 @@ public class Ticket {
 
     public void setAvaliacao(Avaliacao avaliacao) {
         this.avaliacao = avaliacao;
+    }
+
+    public List<HistoricoStatusTicket> getHistoricoStatus() {
+        return historicoStatus;
     }
 }

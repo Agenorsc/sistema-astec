@@ -21,6 +21,10 @@ public class Equipamento {
     @Column(unique = true, length = 100)
     private String numeroSerie;
 
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Usuario cliente;
+
     @JsonIgnore
     @OneToMany(mappedBy = "equipamento")
     private List<Ticket> tickets = new ArrayList<>();
@@ -65,6 +69,14 @@ public class Equipamento {
 
     public void setNumeroSerie(String numeroSerie) {
         this.numeroSerie = numeroSerie;
+    }
+
+    public Usuario getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Usuario cliente) {
+        this.cliente = cliente;
     }
 
     public List<Ticket> getTickets() {

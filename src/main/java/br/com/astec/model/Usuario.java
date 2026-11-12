@@ -2,6 +2,7 @@ package br.com.astec.model;
 
 import br.com.astec.model.enums.PerfilEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class Usuario {
     private String email;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
 
     @Enumerated(EnumType.STRING)
@@ -28,7 +30,7 @@ public class Usuario {
     private PerfilEnum perfil;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cliente")
     private List<Ticket> ticketsAbertos = new ArrayList<>();
 
     @JsonIgnore

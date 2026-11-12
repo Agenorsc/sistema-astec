@@ -50,21 +50,18 @@ public class PesquisasRepositoryTest {
 
     @BeforeEach
     public void setup() {
-        // Criar Usuários
         cliente1 = new Usuario(null, "Empresa Metalúrgica ABC", "contato@metalabc.com.br", "123456", PerfilEnum.CLIENTE);
         usuarioRepository.save(cliente1);
 
         tecnico1 = new Usuario(null, "Felipe Técnico", "felipe@astec.com.br", "654321", PerfilEnum.TECNICO);
         usuarioRepository.save(tecnico1);
 
-        // Criar Equipamentos
         tornoCnc = new Equipamento(null, "Torno CNC 4000", "TC-4000", "SERIE-1111");
         equipamentoRepository.save(tornoCnc);
 
         prensa = new Equipamento(null, "Prensa 50T", "PR-50", "SERIE-2222");
         equipamentoRepository.save(prensa);
 
-        // Criar 2 Tickets para Torno CNC
         ticket1 = new Ticket(null, "AST-001", "Falha de acionamento no spindle", "Equipamento desliga sozinho",
                 TipoAtendimentoEnum.CORRETIVA, UrgenciaEnum.CRITICA, StatusTicketEnum.EM_ATENDIMENTO, cliente1, tornoCnc);
         ticket1.setTecnicoResponsavel(tecnico1);
@@ -75,7 +72,6 @@ public class PesquisasRepositoryTest {
         ticket2.setTecnicoResponsavel(tecnico1);
         ticketRepository.save(ticket2);
 
-        // Criar 1 Ticket para Prensa
         ticket3 = new Ticket(null, "AST-003", "Vazamento mangueira hidráulica", "Óleo vertendo na base",
                 TipoAtendimentoEnum.PECA_DEFEITO, UrgenciaEnum.ALTA, StatusTicketEnum.ABERTO, cliente1, prensa);
         ticketRepository.save(ticket3);
@@ -150,7 +146,6 @@ public class PesquisasRepositoryTest {
             }
         }
 
-        // Teste de contagem individual por entidade (countByEquipamento)
         long totalTorno = ticketRepository.countByEquipamento(tornoCnc);
         assertEquals(2L, totalTorno);
     }
@@ -159,7 +154,7 @@ public class PesquisasRepositoryTest {
     @DisplayName("Contar tickets por status agrupados via DTO")
     public void testContarTicketsPorStatus() {
         List<TicketContagemPorStatusDTO> contagensStatus = ticketRepository.contarTicketsPorStatus();
-        assertEquals(3, contagensStatus.size()); // EM_ATENDIMENTO, RESOLVIDO, ABERTO
+        assertEquals(3, contagensStatus.size());
 
         long totalAbertos = ticketRepository.countByStatus(StatusTicketEnum.ABERTO);
         assertEquals(1L, totalAbertos);

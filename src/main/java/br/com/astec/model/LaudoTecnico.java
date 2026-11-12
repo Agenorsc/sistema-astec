@@ -18,6 +18,9 @@ public class LaudoTecnico {
 
     private Double horasTrabalhadas;
 
+    @Column(nullable = false, updatable = false)
+    private java.time.LocalDateTime dataRegistro;
+
     @OneToOne
     @JoinColumn(name = "ticket_id", nullable = false, unique = true)
     private Ticket ticket;
@@ -27,6 +30,7 @@ public class LaudoTecnico {
     private List<ItemPecaSubstituida> pecasSubstituidas = new ArrayList<>();
 
     public LaudoTecnico() {
+        this.dataRegistro = java.time.LocalDateTime.now();
     }
 
     public LaudoTecnico(Long id, String diagnosticoSolucao, Double horasTrabalhadas, Ticket ticket) {
@@ -34,6 +38,7 @@ public class LaudoTecnico {
         this.diagnosticoSolucao = diagnosticoSolucao;
         this.horasTrabalhadas = horasTrabalhadas;
         this.ticket = ticket;
+        this.dataRegistro = java.time.LocalDateTime.now();
     }
 
     public void finalizarAtendimento() {
@@ -41,8 +46,6 @@ public class LaudoTecnico {
             this.ticket.encerrarTicket();
         }
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -72,6 +75,10 @@ public class LaudoTecnico {
         return ticket;
     }
 
+    public java.time.LocalDateTime getDataRegistro() {
+        return dataRegistro;
+    }
+
     public void setTicket(Ticket ticket) {
         this.ticket = ticket;
     }
@@ -82,5 +89,9 @@ public class LaudoTecnico {
 
     public void setPecasSubstituidas(List<ItemPecaSubstituida> pecasSubstituidas) {
         this.pecasSubstituidas = pecasSubstituidas;
+    }
+
+    public void adicionarPeca(ItemPecaSubstituida peca) {
+        pecasSubstituidas.add(peca);
     }
 }

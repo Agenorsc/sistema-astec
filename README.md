@@ -8,7 +8,7 @@
 
 # SISTEMA ASTEC
 ### Sistema de Gestão de Assistência Técnica Especializada
-**Documentação Oficial e Backend – Etapa 1: Backend, Modelagem e Requisitos**
+**Documentação Oficial – Requisitos, Modelagem e Backend REST**
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.4-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
@@ -158,6 +158,7 @@ classDiagram
         -String nome
         -String modelo
         -String numeroSerie
+        -Usuario cliente
     }
 
     class Ticket {
@@ -169,6 +170,10 @@ classDiagram
         -UrgenciaEnum urgencia
         -StatusTicketEnum status
         -LocalDateTime dataCriacao
+        -LocalDateTime prazoPrimeiraResposta
+        -LocalDateTime prazoResolucao
+        -LocalDateTime dataPrimeiraResposta
+        -LocalDateTime dataResolucao
         -LocalDateTime dataFechamento
         +alterarStatus(StatusTicketEnum novoStatus) void
         +atribuirTecnico(Usuario tecnico) void
@@ -212,6 +217,16 @@ classDiagram
         -LocalDateTime dataAvaliacao
     }
 
+    class HistoricoStatusTicket {
+        -Long id
+        -StatusTicketEnum statusAnterior
+        -StatusTicketEnum statusNovo
+        -String observacao
+        -LocalDateTime dataAlteracao
+        -Usuario usuario
+    }
+
+    Usuario "1" <-- "0..*" Equipamento : cliente
     Usuario "1" <-- "0..*" Ticket : cliente (abre)
     Usuario "0..1" <-- "0..*" Ticket : tecnicoResponsavel (atende)
     Equipamento "1" <-- "0..*" Ticket : equipamento
@@ -219,6 +234,8 @@ classDiagram
     Ticket "1" *-- "0..*" Anexo : anexos
     Ticket "1" *-- "0..1" LaudoTecnico : laudoTecnico
     Ticket "1" *-- "0..1" Avaliacao : avaliacao
+    Ticket "1" *-- "0..*" HistoricoStatusTicket : historicoStatus
+    Usuario "1" <-- "0..*" HistoricoStatusTicket : autor
     LaudoTecnico "1" *-- "0..*" ItemPecaSubstituida : pecasSubstituidas
     Usuario "1" <-- "0..*" MensagemTicket : autor
 ```
@@ -243,6 +260,7 @@ classDiagram
 | `nome` | VARCHAR(255) | Not Null | Nome comercial do maquinário. |
 | `modelo` | VARCHAR(255) | Nullable | Modelo do equipamento industrial. |
 | `numeroSerie` | VARCHAR(100) | Unique | Número de série para controle patrimonial. |
+| `cliente_id` | BIGINT | FK, Nullable | Proprietário do equipamento (tb_usuario). |
 
 ### Tabela: `tb_ticket`
 | Campo | Tipo | Restrição | Descrição |
@@ -255,6 +273,10 @@ classDiagram
 | `urgencia` | VARCHAR(50) | Not Null | Enum (BAIXA, MEDIA, ALTA, CRITICA). |
 | `status` | VARCHAR(50) | Not Null | Enum (ABERTO, EM_ANALISE, AGUARDANDO_PECAS, EM_ATENDIMENTO, RESOLVIDO, FECHADO). |
 | `dataCriacao` | TIMESTAMP | Not Null | Carimbo temporal de abertura. |
+| `prazoPrimeiraResposta` | TIMESTAMP | Nullable | Prazo de primeira resposta calculado conforme urgência. |
+| `prazoResolucao` | TIMESTAMP | Nullable | Prazo de resolução calculado conforme urgência. |
+| `dataPrimeiraResposta` | TIMESTAMP | Nullable | Data da primeira resposta de suporte. |
+| `dataResolucao` | TIMESTAMP | Nullable | Data de resolução do chamado. |
 | `dataFechamento` | TIMESTAMP | Nullable | Carimbo temporal de encerramento. |
 | `cliente_id` | BIGINT | FK, Not Null | Referência ao usuário solicitante (tb_usuario). |
 | `tecnico_id` | BIGINT | FK, Nullable | Referência ao técnico responsável (tb_usuario). |
@@ -305,6 +327,17 @@ classDiagram
 | `dataAvaliacao` | TIMESTAMP | Not Null | Data e hora da avaliação. |
 | `ticket_id` | BIGINT | FK, Unique, Not Null | Relação 1:1 obrigatória com `tb_ticket`. |
 
+### Tabela: `tb_historico_status_ticket`
+| Campo | Tipo | Restrição | Descrição |
+|---|---|---|---|
+| `id` | BIGINT | PK, Auto Inc | Identificador único do evento de status. |
+| `statusAnterior` | VARCHAR(50) | Nullable | Status anterior; vazio na abertura inicial. |
+| `statusNovo` | VARCHAR(50) | Not Null | Novo status do chamado. |
+| `observacao` | VARCHAR(1000) | Nullable | Justificativa ou evento associado. |
+| `dataAlteracao` | TIMESTAMP | Not Null, imutável | Data e hora da alteração. |
+| `ticket_id` | BIGINT | FK, Not Null, imutável | Chamado alterado. |
+| `usuario_id` | BIGINT | FK, Not Null, imutável | Usuário responsável pela alteração. |
+
 ---
 
 ## 5. Como Executar o Projeto
@@ -318,21 +351,64 @@ classDiagram
    ```powershell
    cd "C:\Sistema Astec"
    ```
-2. Execute a aplicação via Maven Wrapper:
+2. Configure as variáveis de ambiente obrigatórias:
    ```powershell
-   .\mvnw spring-boot:run
+   $env:ASTEC_JWT_SECRET = "<segredo aleatório com pelo menos 32 bytes>"
+   $env:ASTEC_BOOTSTRAP_ADMIN_NAME = "Administrador"
+   $env:ASTEC_BOOTSTRAP_ADMIN_EMAIL = "admin@exemplo.com"
+   $env:ASTEC_BOOTSTRAP_ADMIN_PASSWORD = "<senha com pelo menos 12 caracteres>"
    ```
-3. A aplicação estará ativa na porta `8080`:
+   O administrador inicial só é criado se ainda não existir um usuário com perfil `ADMIN`. Não reutilize o segredo nem a senha de exemplo em produção.
+3. Execute a aplicação via Maven Wrapper:
+   ```powershell
+   .\mvnw.cmd spring-boot:run
+   ```
+4. A aplicação estará ativa na porta `8080`:
    - **API REST Base:** `http://localhost:8080/api/tickets`
+   - **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+   - **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
    - **Console H2 Database:** `http://localhost:8080/h2-console`
      - JDBC URL: `jdbc:h2:mem:astecdb`
      - Usuário: `sa`
      - Senha: *(em branco)*
+     - O console está disponível somente para conexões locais.
+
+O H2 é o banco padrão e funciona em memória. O HSQLDB também está disponível como alternativa em memória; use apenas um banco por execução:
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=hsql"
+```
+
+Para voltar ao H2, remova a opção de perfil ou use `-Dspring-boot.run.profiles=h2`. Ambos os bancos reiniciam sem preservar os dados.
+
+Por padrão, a aplicação **não** cria contas de exemplo. Para carregar os dados demonstrativos com credenciais conhecidas (`admin123`, `tec123`, `tec456`, `cli123`, `cli456`), habilite `ASTEC_SEED_DEMO_DATA=true` apenas em ambiente local. A carga demonstrativa não deve ser habilitada em ambiente acessível por terceiros.
+
+### Autenticação da API
+
+A API usa tokens JWT Bearer e não mantém sessão HTTP. Para obter um token:
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@exemplo.com",
+  "senha": "<senha do administrador>"
+}
+```
+
+Após o login, envie o token nas rotas protegidas:
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+O token expira após uma hora. Configure `ASTEC_JWT_SECRET` com um segredo forte e aleatório; o valor não deve ser salvo no repositório.
 
 ### Execução dos Testes Automatizados
 Para rodar a suíte completa de testes de repositório e consultas DTO:
 ```powershell
-.\mvnw test
+.\mvnw.cmd test
 ```
 
 ---
@@ -341,13 +417,65 @@ Para rodar a suíte completa de testes de repositório e consultas DTO:
 
 Teste das rotas da API direto no navegador ou no Postman/Insomnia:
 
+- **Login e emissão do token JWT:** `POST http://localhost:8080/api/auth/login`
 - **Listar todos os Chamados:**
   - `http://localhost:8080/api/tickets`
-- **Listar Usuários (Clientes, Técnicos, Admin):**
+- **Listar Usuários (somente Admin, requer JWT):**
   - `http://localhost:8080/api/usuarios`
-- **Listar Equipamentos industriais:**
+- **Listar Equipamentos industriais (requer JWT):**
   - `http://localhost:8080/api/equipamentos`
 - **Estatísticas de Tickets por Máquina (Consulta DTO):**
   - `http://localhost:8080/api/tickets/estatisticas/equipamentos`
 - **Estatísticas de Tickets por Status:**
   - `http://localhost:8080/api/tickets/estatisticas/status`
+
+### Contratos implementados
+
+Todas as rotas abaixo, exceto login e documentação OpenAPI, exigem `Authorization: Bearer <token>`. Respostas de listagem usam paginação (`pagina`, `tamanho`, máximo de 100 registros). Erros usam `application/problem+json`.
+
+| Método | Endpoint | Acesso / finalidade |
+|---|---|---|
+| `POST` | `/api/auth/login` | Autentica por email e senha e emite JWT. |
+| `GET` | `/api/usuarios` | Admin: lista usuários, com filtros `perfil` e `nome`. |
+| `GET` | `/api/usuarios/{id}` | Admin: consulta usuário. |
+| `POST` | `/api/usuarios` | Admin: cadastra cliente, técnico ou administrador. |
+| `PATCH` | `/api/usuarios/{id}/perfil` | Admin: altera perfil. |
+| `DELETE` | `/api/usuarios/{id}` | Admin: remove usuário quando não houver vínculos impeditivos. |
+| `GET` | `/api/equipamentos` | Lista equipamentos visíveis ao usuário autenticado. |
+| `GET` | `/api/equipamentos/{id}` | Consulta equipamento, respeitando propriedade do cliente. |
+| `POST` | `/api/equipamentos` | Cadastra equipamento; cliente cria para si e Admin pode indicar cliente. |
+| `PUT` | `/api/equipamentos/{id}` | Atualiza equipamento conforme autorização. |
+| `DELETE` | `/api/equipamentos/{id}` | Admin remove equipamento. |
+| `GET` | `/api/tickets` | Lista chamados; filtros `clienteId`, `tecnicoId`, `equipamentoId`, `status`, `urgencia`, `dataInicio` e `dataFim` (`yyyy-MM-dd`). Clientes só consultam os próprios. |
+| `GET` | `/api/tickets/{id}` | Consulta chamado, respeitando propriedade do cliente. |
+| `POST` | `/api/tickets` | Cliente abre chamado para equipamento próprio. |
+| `PATCH` | `/api/tickets/{id}/status` | Técnico/Admin altera status com observação e histórico. |
+| `PATCH` | `/api/tickets/{id}/atribuicao` | Técnico assume o chamado para si; Admin atribui a um técnico. |
+| `GET` | `/api/tickets/{id}/historico` | Consulta histórico auditável de status. |
+| `GET`, `POST` | `/api/tickets/{id}/mensagens` | Lista e envia mensagens no chamado. |
+| `GET`, `POST` | `/api/tickets/{id}/anexos` | Lista e envia JPG, PDF ou MP4 de até 20 MB (`multipart/form-data`, campo `arquivo`). |
+| `GET`, `DELETE` | `/api/tickets/{id}/anexos/{anexoId}` | Baixa anexo autorizado ou permite sua remoção por Técnico/Admin. |
+| `GET`, `POST` | `/api/tickets/{id}/laudo` | Consulta ou registra laudo técnico e peças; o registro resolve o chamado. |
+| `GET`, `POST` | `/api/tickets/{id}/avaliacao` | Consulta ou registra avaliação de 1 a 5 após resolução; somente o cliente proprietário avalia. |
+| `GET` | `/api/tickets/estatisticas/status` | Admin/Técnico: totais agrupados por status. |
+| `GET` | `/api/tickets/estatisticas/equipamentos` | Admin/Técnico: totais agrupados por equipamento. |
+| `GET` | `/api/tickets/estatisticas/sla` | Admin/Técnico: chamados em atraso de primeira resposta e resolução. |
+
+O fluxo de status valida as transições, mantém registro imutável de cada alteração e grava os prazos e horários de resposta/resolução. Os prazos padrão são configuráveis por variável de ambiente: Crítica (1h/4h), Alta (4h/24h), Média (8h/72h) e Baixa (24h/120h), respectivamente para primeira resposta e resolução. Esses valores são defaults técnicos provisórios e devem ser confirmados pela área de negócio.
+
+Anexos são gravados no diretório local definido por `ASTEC_ATTACHMENTS_DIRECTORY` (padrão `./data/anexos`) com identificadores aleatórios; extensão e assinatura básica do conteúdo são verificadas. Configure SMTP via propriedades padrão `spring.mail.*`; sem `spring.mail.host`, notificações de desenvolvimento são registradas no log.
+
+| Requisito | Endpoints principais | Entidades |
+|---|---|---|
+| RF01 – Abertura de chamado | `POST /api/tickets`, `GET /api/tickets` | `Ticket`, `Usuario`, `Equipamento` |
+| RF02 – Anexo de mídias | `/api/tickets/{id}/anexos` | `Anexo`, `Ticket` |
+| RF03 – Atribuição de técnico | `PATCH /api/tickets/{id}/atribuicao` | `Ticket`, `Usuario` |
+| RF04 – Status do chamado | `PATCH /api/tickets/{id}/status`, `GET /api/tickets/{id}/historico` | `Ticket`, `HistoricoStatusTicket`, `Usuario` |
+| RF05 – Chat/histórico | `/api/tickets/{id}/mensagens` | `MensagemTicket`, `Ticket`, `Usuario` |
+| RF06 – Notificações | Eventos de status, atribuição e mensagem | `Ticket`, `Usuario` |
+| RF07 – Painel do cliente | `GET /api/tickets`, `GET /api/equipamentos` | `Ticket`, `Equipamento`, `Usuario` |
+| RF08 – Painel Técnico/Admin | `GET /api/tickets`, `/api/tickets/estatisticas/*` | `Ticket`, `Equipamento`, `Usuario` |
+| RF09 – Laudo e peças | `POST /api/tickets/{id}/laudo` | `LaudoTecnico`, `ItemPecaSubstituida`, `Ticket` |
+| RF10 – Avaliação | `POST /api/tickets/{id}/avaliacao` | `Avaliacao`, `Ticket`, `Usuario` |
+
+O backend cobre os requisitos funcionais e os requisitos não funcionais aplicáveis ao escopo de API e persistência. A responsividade mobile (RNF06) é responsabilidade do frontend e permanece fora do escopo atual. Disponibilidade 99,5% e tempo máximo de resposta de 1,5 segundos (RNF01/RNF02) dependem também da infraestrutura e precisam de validação em ambiente implantado; a suíte automatizada não representa garantia desses níveis.

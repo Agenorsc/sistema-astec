@@ -12,4 +12,6 @@ public interface AnexoRepository extends JpaRepository<Anexo, Long> {
     List<Anexo> findByTicketId(Long ticketId);
 
     List<Anexo> findByTipoArquivo(String tipoArquivo);
+
+    java.util.Optional<Anexo> findByIdAndTicketId(Long id, Long ticketId);
 }

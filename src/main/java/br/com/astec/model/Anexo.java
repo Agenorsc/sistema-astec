@@ -37,8 +37,6 @@ public class Anexo {
         this.ticket = ticket;
     }
 
-    // Getters and Setters
-
     public Long getId() {
         return id;
     }
