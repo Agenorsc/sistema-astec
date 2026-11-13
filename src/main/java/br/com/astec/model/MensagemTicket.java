@@ -14,7 +14,7 @@ public class MensagemTicket {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String texto;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime dataEnvio;
 
     @ManyToOne
@@ -44,8 +44,6 @@ public class MensagemTicket {
         this.dataEnvio = LocalDateTime.now();
     }
 
-    // Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -67,7 +65,9 @@ public class MensagemTicket {
     }
 
     public void setDataEnvio(LocalDateTime dataEnvio) {
-        this.dataEnvio = dataEnvio;
+        if (this.dataEnvio == null) {
+            this.dataEnvio = dataEnvio;
+        }
     }
 
     public Ticket getTicket() {

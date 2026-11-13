@@ -42,8 +42,6 @@ public class ItemPecaSubstituida {
         return valorUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
 
-    // Getters and Setters
-
     public Long getId() {
         return id;
     }

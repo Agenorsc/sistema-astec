@@ -17,7 +17,7 @@ public class Avaliacao {
     @Column(length = 500)
     private String comentario;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime dataAvaliacao;
 
     @OneToOne
@@ -35,8 +35,6 @@ public class Avaliacao {
         this.ticket = ticket;
         this.dataAvaliacao = LocalDateTime.now();
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;

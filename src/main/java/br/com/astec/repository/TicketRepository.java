@@ -7,6 +7,7 @@ import br.com.astec.model.enums.UrgenciaEnum;
 import br.com.astec.repository.dto.TicketContagemPorEquipamentoDTO;
 import br.com.astec.repository.dto.TicketContagemPorStatusDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
+public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecificationExecutor<Ticket> {
 
     List<Ticket> findByClienteId(Long clienteId);
 
@@ -31,6 +32,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     long countByStatus(StatusTicketEnum status);
 
     long countByEquipamento(Equipamento equipamento);
+
+    List<Ticket> findByPrazoPrimeiraRespostaBeforeAndDataPrimeiraRespostaIsNullAndStatusNotIn(
+            java.time.LocalDateTime data,
+            List<StatusTicketEnum> status);
+
+    List<Ticket> findByPrazoResolucaoBeforeAndDataResolucaoIsNullAndStatusNotIn(
+            java.time.LocalDateTime data,
+            List<StatusTicketEnum> status);
 
     @Query("SELECT new br.com.astec.repository.dto.TicketContagemPorEquipamentoDTO(t.equipamento, COUNT(t)) " +
            "FROM Ticket t " +
