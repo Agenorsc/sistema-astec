@@ -36,6 +36,13 @@ public class Avaliacao {
         this.dataAvaliacao = LocalDateTime.now();
     }
 
+    public Avaliacao(Ticket ticket, Integer nota, String comentario) {
+        this.ticket = ticket;
+        this.nota = nota;
+        this.comentario = comentario;
+        this.dataAvaliacao = LocalDateTime.now();
+    }
+
     // Getters and Setters
 
     public Long getId() {

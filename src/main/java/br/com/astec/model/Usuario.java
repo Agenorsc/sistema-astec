@@ -23,9 +23,15 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
+    @Column(length = 20)
+    private String telefone;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private PerfilEnum perfil;
+
+    @Embedded
+    private Endereco endereco;
 
     @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
@@ -78,12 +84,28 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
     public PerfilEnum getPerfil() {
         return perfil;
     }
 
     public void setPerfil(PerfilEnum perfil) {
         this.perfil = perfil;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
     }
 
     public List<Ticket> getTicketsAbertos() {

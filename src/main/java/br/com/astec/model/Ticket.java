@@ -11,11 +11,18 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_ticket")
+@NamedQueries({
+    @NamedQuery(name = "Ticket.listarTodos", query = "SELECT t FROM Ticket t ORDER BY t.dataCriacao DESC"),
+    @NamedQuery(name = "Ticket.buscarPorStatus", query = "SELECT t FROM Ticket t WHERE t.status = :status ORDER BY t.dataCriacao DESC")
+})
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long versao;
 
     @Column(nullable = false, unique = true, length = 50)
     private String codigo;
@@ -42,6 +49,8 @@ public class Ticket {
     private LocalDateTime dataCriacao;
 
     private LocalDateTime dataFechamento;
+
+    private LocalDateTime dataAtualizacao;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -174,12 +183,28 @@ public class Ticket {
         this.dataCriacao = dataCriacao;
     }
 
+    public LocalDateTime getDataAbertura() {
+        return dataCriacao;
+    }
+
+    public void setDataAbertura(LocalDateTime dataAbertura) {
+        this.dataCriacao = dataAbertura;
+    }
+
     public LocalDateTime getDataFechamento() {
         return dataFechamento;
     }
 
     public void setDataFechamento(LocalDateTime dataFechamento) {
         this.dataFechamento = dataFechamento;
+    }
+
+    public LocalDateTime getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
     }
 
     public Usuario getCliente() {
@@ -236,5 +261,18 @@ public class Ticket {
 
     public void setAvaliacao(Avaliacao avaliacao) {
         this.avaliacao = avaliacao;
+    }
+
+    public Long getVersao() {
+        return versao;
+    }
+
+    public void setVersao(Long versao) {
+        this.versao = versao;
+    }
+
+    @Transient
+    public String getStatusFormatado() {
+        return status != null ? status.name().replace('_', ' ') : "";
     }
 }

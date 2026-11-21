@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Sistema Astec - Assistência Técnica</title>
+
+    <!-- Bootstrap 4.6.0 conforme ensinado nos slides do professor -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+          integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+          crossorigin="anonymous">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1 0 auto;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+        }
+        .badge-status-ABERTO { background-color: #17a2b8; color: white; }
+        .badge-status-EM_ATENDIMENTO { background-color: #ffc107; color: #212529; }
+        .badge-status-AGUARDANDO_CLIENTE { background-color: #fd7e14; color: white; }
+        .badge-status-RESOLVIDO { background-color: #28a745; color: white; }
+        .badge-status-FECHADO { background-color: #6c757d; color: white; }
+        .badge-status-CANCELADO { background-color: #dc3545; color: white; }
+
+        .badge-urgencia-BAIXA { background-color: #6c757d; color: white; }
+        .badge-urgencia-MEDIA { background-color: #17a2b8; color: white; }
+        .badge-urgencia-ALTA { background-color: #fd7e14; color: white; }
+        .badge-urgencia-CRITICA { background-color: #dc3545; color: white; }
+
+        .footer {
+            flex-shrink: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e9ecef;
+            padding: 1.25rem 0;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fragmento Navbar -->
+    <div th:fragment="navbar">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+            <div class="container">
+                <a class="navbar-brand" th:href="@{/home}">
+                    <i class="fas fa-tools mr-2"></i>Astec
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navConteudo"
+                        aria-controls="navConteudo" aria-expanded="false" aria-label="Alterna navegação">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navConteudo">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" th:href="@{/home}">
+                                <i class="fas fa-tachometer-alt mr-1"></i>Painel Geral
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" th:href="@{/tickets/novo}">
+                                <i class="fas fa-plus-circle mr-1"></i>Novo Chamado
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" th:href="@{/equipamentos}">
+                                <i class="fas fa-laptop mr-1"></i>Equipamentos
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm mr-2" href="/swagger-ui/index.html" target="_blank" title="Documentação OpenAPI Swagger">
+                                <i class="fas fa-book mr-1"></i>Swagger UI
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-warning btn-sm" href="/h2-console" target="_blank" title="Console Banco de Dados H2">
+                                <i class="fas fa-database mr-1"></i>H2 Console
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Fragmento Cabeçalho / Título (Slide 36) -->
+    <div th:fragment="titulo(valor)" class="jumbotron jumbotron-fluid bg-white border-bottom py-4 mb-4">
+        <div class="container">
+            <h1 class="display-5 font-weight-bold text-primary mb-1" th:text="${valor}">Título da Página</h1>
+            <p class="lead text-muted mb-0">Sistema de Gestão de Ordens de Serviço e Assistência Técnica Especializada</p>
+        </div>
+    </div>
+
+    <!-- Fragmento Footer -->
+    <div th:fragment="footer">
+        <footer class="footer mt-5">
+            <div class="container text-center">
+                <span><strong>Sistema Astec</strong> &copy; 2026 - Católica de Santa Catarina | Disciplina de Programação WEB</span>
+                <br>
+                <small class="text-muted">Desenvolvido com Spring Boot 3.3.4, Spring Data JPA, Thymeleaf, Bean Validation e OpenAPI 3.0</small>
+            </div>
+        </footer>
+        <!-- Scripts do Bootstrap 4.6.0 -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    </div>
+
+</body>
+</html>

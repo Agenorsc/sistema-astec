@@ -35,6 +35,17 @@ public class ItemPecaSubstituida {
         this.laudoTecnico = laudoTecnico;
     }
 
+    public ItemPecaSubstituida(String nomePeca, Integer quantidade, BigDecimal valorUnitario) {
+        this.nomePeca = nomePeca;
+        this.quantidade = quantidade;
+        this.valorUnitario = valorUnitario;
+    }
+
+    @Transient
+    public BigDecimal getSubtotal() {
+        return calcularSubtotal();
+    }
+
     public BigDecimal calcularSubtotal() {
         if (quantidade == null || valorUnitario == null) {
             return BigDecimal.ZERO;

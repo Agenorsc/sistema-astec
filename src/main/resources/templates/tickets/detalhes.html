@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{base :: titulo('Detalhes do Chamado #' + ${ticket.id})}"></div>
+
+        <div class="container">
+
+            <!-- Mensagens Flash -->
+            <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i><span th:text="${mensagemSucesso}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i><span th:text="${mensagemErro}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Cabeçalho do Chamado com Status e Ações -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <span class="h5 font-weight-bold text-dark mr-2" th:text="${ticket.titulo}">Título</span>
+                        <code class="mr-2" th:text="${ticket.codigo}">TK-123</code>
+                        <span class="badge badge-secondary mr-2" title="Controle de Concorrência Otimista (JPA @Version)">
+                            <i class="fas fa-code-branch mr-1"></i>v<span th:text="${ticket.versao}">1</span>
+                        </span>
+                    </div>
+                    <div class="mt-2 mt-md-0 d-flex align-items-center">
+                        <span class="badge mr-2 p-2" th:classappend="'badge-urgencia-' + ${ticket.urgencia.name()}"
+                              th:text="'Urgência: ' + ${ticket.urgencia.descricao}">Média</span>
+                        <span class="badge p-2" th:classappend="'badge-status-' + ${ticket.status.name()}"
+                              th:text="'Status: ' + ${ticket.statusFormatado}">Aberto</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="text-muted font-weight-bold">Descrição da Solicitação</h6>
+                            <p class="lead" style="font-size: 1rem; white-space: pre-line;" th:text="${ticket.descricao}">Descrição...</p>
+
+                            <hr>
+
+                            <!-- Informações do Cliente com @Embedded Endereço -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-primary font-weight-bold"><i class="fas fa-user mr-1"></i>Cliente Solicitante</h6>
+                                    <p class="mb-1"><strong th:text="${ticket.cliente.nome}">Nome</strong> (<span th:text="${ticket.cliente.email}">email</span>)</p>
+                                    <p class="mb-1"><i class="fas fa-phone mr-1 text-muted"></i><span th:text="${ticket.cliente.telefone != null ? ticket.cliente.telefone : 'Não informado'}"></span></p>
+
+                                    <!-- JPA @Embedded Endereço (Deck 3, Slides 109-112) -->
+                                    <div th:if="${ticket.cliente.endereco != null}" class="small text-muted border-left pl-2 mt-2">
+                                        <strong><i class="fas fa-map-marker-alt mr-1"></i>Endereço (@Embedded):</strong><br>
+                                        <span th:text="${ticket.cliente.endereco.logradouro} + ', ' + ${ticket.cliente.endereco.numero}"></span><br>
+                                        <span th:text="${ticket.cliente.endereco.bairro} + ' - ' + ${ticket.cliente.endereco.cidade} + '/' + ${ticket.cliente.endereco.uf}"></span><br>
+                                        <span>CEP: <span th:text="${ticket.cliente.endereco.cep}"></span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Equipamento com @ElementCollection e @ManyToMany -->
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-primary font-weight-bold"><i class="fas fa-laptop mr-1"></i>Equipamento</h6>
+                                    <p class="mb-1"><strong th:text="${ticket.equipamento.nome}">Nome</strong> - Mod: <span th:text="${ticket.equipamento.modelo}"></span></p>
+                                    <p class="mb-1 small text-muted">S/N: <code th:text="${ticket.equipamento.numeroSerie}">12345</code></p>
+
+                                    <!-- JPA @ManyToMany Categorias (Deck 3, Slides 65-69) -->
+                                    <div class="mb-2" th:if="${not #lists.isEmpty(ticket.equipamento.categorias)}">
+                                        <small class="font-weight-bold text-muted">Categorias (@ManyToMany):</small><br>
+                                        <span th:each="cat : ${ticket.equipamento.categorias}" class="badge badge-info mr-1" th:text="${cat.nome}">Hardware</span>
+                                    </div>
+
+                                    <!-- JPA @ElementCollection Tags (Deck 3, Slides 63-64) -->
+                                    <div th:if="${not #lists.isEmpty(ticket.equipamento.tags)}">
+                                        <small class="font-weight-bold text-muted">Tags (@ElementCollection):</small><br>
+                                        <span th:each="tg : ${ticket.equipamento.tags}" class="badge badge-light border mr-1" th:text="${tg}">Dell</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna Lateral de Metadados e Alteração de Status -->
+                        <div class="col-md-4 bg-light p-3 rounded">
+                            <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-info-circle mr-1"></i>Metadados</h6>
+                            <ul class="list-unstyled small mb-3">
+                                <li class="mb-2"><strong>Aberto em:</strong> <span th:text="${#temporals.format(ticket.dataAbertura, 'dd/MM/yyyy HH:mm')}"></span></li>
+                                <li class="mb-2"><strong>Última atualização:</strong> <span th:text="${ticket.dataAtualizacao != null ? #temporals.format(ticket.dataAtualizacao, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span></li>
+                                <li class="mb-2"><strong>Fechado em:</strong> <span th:text="${ticket.dataFechamento != null ? #temporals.format(ticket.dataFechamento, 'dd/MM/yyyy HH:mm') : 'Em aberto'}"></span></li>
+                                <li class="mb-2"><strong>Tipo de Atendimento:</strong> <span th:text="${ticket.tipoAtendimento.descricao}"></span></li>
+                                <li class="mb-2"><strong>Técnico Responsável:</strong> <span th:text="${ticket.tecnicoResponsavel != null ? ticket.tecnicoResponsavel.nome : 'Não atribuído'}"></span></li>
+                            </ul>
+
+                            <hr>
+
+                            <!-- Formulário de Transição de Status -->
+                            <form th:action="@{/tickets/{id}/status(id=${ticket.id})}" method="POST">
+                                <label for="selectStatus" class="font-weight-bold small">Alterar Status:</label>
+                                <div class="input-group input-group-sm mb-2">
+                                    <select id="selectStatus" name="status" class="form-control">
+                                        <option th:each="st : ${todosStatus}" th:value="${st}" th:text="${st.descricao}" th:selected="${st == ticket.status}"></option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-outline-primary">Atualizar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linha com Mensagens (Chat) e Laudo Técnico / Avaliação -->
+            <div class="row">
+
+                <!-- Coluna Esquerda: Chat / Mensagens (@OneToMany) -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white font-weight-bold">
+                            <i class="fas fa-comments mr-2 text-primary"></i>Histórico de Mensagens / Atendimento
+                        </div>
+                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                            <div th:if="${#lists.isEmpty(ticket.mensagens)}" class="text-center text-muted py-4">
+                                <p>Nenhuma mensagem trocada até o momento.</p>
+                            </div>
+                            <div th:each="msg : ${ticket.mensagens}" class="mb-3 p-3 rounded"
+                                 th:classappend="${msg.autor.perfil.name() == 'TECNICO' or msg.autor.perfil.name() == 'ADMIN'} ? 'bg-light border-left border-primary' : 'bg-white border'">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <strong class="small" th:text="${msg.autor.nome}">Autor</strong>
+                                    <span class="badge badge-secondary" th:text="${msg.autor.perfil}">CLIENTE</span>
+                                </div>
+                                <p class="mb-1" th:text="${msg.texto}">Mensagem...</p>
+                                <small class="text-muted" th:text="${#temporals.format(msg.dataEnvio, 'dd/MM/yyyy HH:mm')}">Data</small>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <!-- Formulário de Envio de Mensagem -->
+                            <form th:action="@{/tickets/{id}/mensagens(id=${ticket.id})}" th:object="${requisicaoNovaMensagem}" method="POST">
+                                <div class="form-group mb-2">
+                                    <label for="autorId" class="small font-weight-bold">Enviar mensagem como:</label>
+                                    <select id="autorId" th:field="*{autorId}" class="form-control form-control-sm">
+                                        <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nome} + ' (' + ${u.perfil} + ')'"></option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" th:field="*{texto}" class="form-control form-control-sm" placeholder="Digite uma mensagem ou resposta..." required>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary btn-sm" type="submit">
+                                            <i class="fas fa-paper-plane mr-1"></i>Enviar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Laudo Técnico (@OneToOne) e Avaliação (@OneToOne) -->
+                <div class="col-lg-6 mb-4">
+
+                    <!-- Laudo Técnico Existente -->
+                    <div th:if="${ticket.laudoTecnico != null}" class="card shadow-sm mb-4 border-success">
+                        <div class="card-header bg-success text-white font-weight-bold">
+                            <i class="fas fa-clipboard-check mr-2"></i>Laudo Técnico Finalizado
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Diagnóstico e Solução:</strong></p>
+                            <p class="text-muted" th:text="${ticket.laudoTecnico.diagnosticoSolucao}"></p>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">Horas Trabalhadas:</small><br>
+                                    <strong th:text="${ticket.laudoTecnico.horasTrabalhadas} + ' h'">2 h</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Data de Finalização:</small><br>
+                                    <strong th:text="${#temporals.format(ticket.laudoTecnico.dataFinalizacao, 'dd/MM/yyyy HH:mm')}"></strong>
+                                </div>
+                            </div>
+
+                            <!-- Peças Substituídas com Subtotal (@Transient) -->
+                            <div th:if="${not #lists.isEmpty(ticket.laudoTecnico.itensSubstituidos)}">
+                                <h6 class="font-weight-bold small text-muted">Peças e Componentes Substituídos:</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th class="text-center">Qtd</th>
+                                            <th class="text-right">Unitário</th>
+                                            <th class="text-right">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${ticket.laudoTecnico.itensSubstituidos}">
+                                            <td th:text="${item.nomePeca}">SSD 480GB</td>
+                                            <td class="text-center" th:text="${item.quantidade}">1</td>
+                                            <td class="text-right" th:text="'R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 2)}">R$ 200,00</td>
+                                            <td class="text-right font-weight-bold" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 200,00</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="table-active font-weight-bold">
+                                            <td colspan="3" class="text-right">Total das Peças:</td>
+                                            <td class="text-right text-success" th:text="'R$ ' + ${#numbers.formatDecimal(ticket.laudoTecnico.valorTotal, 1, 2)}">R$ 200,00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulário para Emissão de Laudo Técnico (se ainda não existir e chamado não estiver fechado) -->
+                    <div th:if="${ticket.laudoTecnico == null and ticket.status.name() != 'FECHADO' and ticket.status.name() != 'CANCELADO'}" class="card shadow-sm mb-4">
+                        <div class="card-header bg-white font-weight-bold">
+                            <i class="fas fa-file-medical-alt mr-2 text-primary"></i>Emitir Laudo Técnico e Finalizar
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/tickets/{id}/laudo(id=${ticket.id})}" th:object="${requisicaoNovoLaudo}" method="POST">
+                                <div class="form-group">
+                                    <label for="diagnosticoSolucao" class="small font-weight-bold">Diagnóstico & Solução Aplicada *</label>
+                                    <textarea id="diagnosticoSolucao" th:field="*{diagnosticoSolucao}" class="form-control form-control-sm" rows="3" required placeholder="Descreva os testes efetuados e a solução técnica aplicada..."></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="horasTrabalhadas" class="small font-weight-bold">Horas Gastas *</label>
+                                        <input type="number" id="horasTrabalhadas" th:field="*{horasTrabalhadas}" class="form-control form-control-sm" min="1" value="1" required>
+                                    </div>
+                                    <div class="form-group col-md-8">
+                                        <label for="nomePeca" class="small font-weight-bold">Peça Trocada (Opcional)</label>
+                                        <input type="text" id="nomePeca" th:field="*{nomePeca}" class="form-control form-control-sm" placeholder="Ex: Memória RAM 8GB">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="quantidadePeca" class="small font-weight-bold">Quantidade de Peças</label>
+                                        <input type="number" id="quantidadePeca" th:field="*{quantidadePeca}" class="form-control form-control-sm" min="1" value="1">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="valorUnitarioPeca" class="small font-weight-bold">Valor Unitário (R$)</label>
+                                        <input type="number" step="0.01" id="valorUnitarioPeca" th:field="*{valorUnitarioPeca}" class="form-control form-control-sm" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-sm btn-block">
+                                    <i class="fas fa-check mr-1"></i>Salvar Laudo e Marcar como RESOLVIDO
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Avaliação de Satisfação Registrada -->
+                    <div th:if="${ticket.avaliacao != null}" class="card shadow-sm border-warning">
+                        <div class="card-header bg-warning text-dark font-weight-bold">
+                            <i class="fas fa-star mr-2"></i>Avaliação do Cliente
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <span class="text-warning">
+                                    <i th:each="i : ${#numbers.sequence(1, ticket.avaliacao.nota)}" class="fas fa-star"></i>
+                                    <i th:if="${ticket.avaliacao.nota < 5}" th:each="i : ${#numbers.sequence(ticket.avaliacao.nota + 1, 5)}" class="far fa-star text-muted"></i>
+                                </span>
+                                <strong class="ml-2" th:text="${ticket.avaliacao.nota} + ' de 5 estrelas'"></strong>
+                            </div>
+                            <p class="mb-1 font-italic text-muted" th:text="'&ldquo;' + ${ticket.avaliacao.comentario} + '&rdquo;'">&ldquo;Ótimo atendimento!&rdquo;</p>
+                            <small class="text-muted" th:text="'Avaliado em ' + ${#temporals.format(ticket.avaliacao.dataAvaliacao, 'dd/MM/yyyy HH:mm')}"></small>
+                        </div>
+                    </div>
+
+                    <!-- Formulário de Avaliação (se resolvido e ainda sem avaliação) -->
+                    <div th:if="${ticket.avaliacao == null and ticket.status.name() == 'RESOLVIDO'}" class="card shadow-sm">
+                        <div class="card-header bg-white font-weight-bold">
+                            <i class="fas fa-star-half-alt mr-2 text-warning"></i>Avaliar Atendimento (Cliente)
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted">O chamado foi marcado como <strong>RESOLVIDO</strong>. Por favor, registre a avaliação do cliente para fechar a Ordem de Serviço.</p>
+                            <form th:action="@{/tickets/{id}/avaliacao(id=${ticket.id})}" th:object="${requisicaoAvaliacao}" method="POST">
+                                <div class="form-group">
+                                    <label for="nota" class="small font-weight-bold">Nota de Avaliação *</label>
+                                    <select id="nota" th:field="*{nota}" class="form-control form-control-sm" required>
+                                        <option value="5">5 Estrelas - Excelente</option>
+                                        <option value="4">4 Estrelas - Muito Bom</option>
+                                        <option value="3">3 Estrelas - Regular</option>
+                                        <option value="2">2 Estrelas - Ruim</option>
+                                        <option value="1">1 Estrela - Péssimo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comentario" class="small font-weight-bold">Comentário / Feedback</label>
+                                    <textarea id="comentario" th:field="*{comentario}" class="form-control form-control-sm" rows="2" placeholder="Conte-nos como foi a experiência..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-warning btn-sm btn-block">
+                                    <i class="fas fa-thumbs-up mr-1"></i>Registrar Avaliação e FECHAR Chamado
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="mt-4 mb-4">
+                <a th:href="@{/home}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Voltar ao Painel Geral
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{base :: titulo('Painel de Chamados Técnicos')}"></div>
+
+        <div class="container">
+
+            <!-- Mensagens Flash -->
+            <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i><span th:text="${mensagemSucesso}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Métricas / Cards de Estatística (Spring Data countByStatus) -->
+            <div class="row mb-4">
+                <div class="col-md-2 col-sm-6 mb-2">
+                    <div class="card bg-primary text-white text-center py-2 shadow-sm">
+                        <div class="card-body p-2">
+                            <h3 class="font-weight-bold mb-0" th:text="${totalTickets}">0</h3>
+                            <small class="text-uppercase font-weight-bold">Total</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    <div class="card bg-info text-white text-center py-2 shadow-sm">
+                        <div class="card-body p-2">
+                            <h3 class="font-weight-bold mb-0" th:text="${totalAbertos}">0</h3>
+                            <small class="text-uppercase font-weight-bold">Abertos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <div class="card bg-warning text-dark text-center py-2 shadow-sm">
+                        <div class="card-body p-2">
+                            <h3 class="font-weight-bold mb-0" th:text="${totalEmAtendimento}">0</h3>
+                            <small class="text-uppercase font-weight-bold">Em Atendimento</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <div class="card bg-success text-white text-center py-2 shadow-sm">
+                        <div class="card-body p-2">
+                            <h3 class="font-weight-bold mb-0" th:text="${totalResolvidos}">0</h3>
+                            <small class="text-uppercase font-weight-bold">Resolvidos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    <div class="card bg-secondary text-white text-center py-2 shadow-sm">
+                        <div class="card-body p-2">
+                            <h3 class="font-weight-bold mb-0" th:text="${totalFechados}">0</h3>
+                            <small class="text-uppercase font-weight-bold">Fechados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Filtros com Criteria / Specification (Deck 2) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white font-weight-bold d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-filter mr-2 text-primary"></i>Filtro Dinâmico de Chamados (Spring Data Criteria Specification)</span>
+                    <a th:href="@{/tickets/novo}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus mr-1"></i>Novo Chamado
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/home}" method="GET" class="form-row align-items-end">
+                        <div class="form-group col-md-4 mb-2">
+                            <label for="termo" class="small text-muted font-weight-bold">Palavra-chave (Título)</label>
+                            <input type="text" id="termo" name="termo" th:value="${termoPesquisa}" class="form-control form-control-sm" placeholder="Ex: teclado, bateria, tela...">
+                        </div>
+                        <div class="form-group col-md-3 mb-2">
+                            <label for="status" class="small text-muted font-weight-bold">Status</label>
+                            <select id="status" name="status" class="form-control form-control-sm">
+                                <option value="">-- Todos os Status --</option>
+                                <option th:each="st : ${todosStatus}" th:value="${st}" th:text="${st.descricao}" th:selected="${st == statusSelecionado}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3 mb-2">
+                            <label for="urgencia" class="small text-muted font-weight-bold">Urgência</label>
+                            <select id="urgencia" name="urgencia" class="form-control form-control-sm">
+                                <option value="">-- Todas as Urgências --</option>
+                                <option th:each="ur : ${todasUrgencias}" th:value="${ur}" th:text="${ur.descricao}" th:selected="${ur == urgenciaSelecionada}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2 mb-2">
+                            <button type="submit" class="btn btn-primary btn-sm btn-block">
+                                <i class="fas fa-search mr-1"></i>Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabela de Chamados -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white font-weight-bold d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-list mr-2 text-primary"></i>Lista de Chamados Registrados</span>
+                    <span class="badge badge-light" th:text="'Total: ' + ${totalElementos} + ' registro(s)'"></span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th># ID</th>
+                                    <th>Código</th>
+                                    <th>Título</th>
+                                    <th>Cliente</th>
+                                    <th>Equipamento</th>
+                                    <th>Urgência</th>
+                                    <th>Status</th>
+                                    <th>Data Abertura</th>
+                                    <th class="text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(tickets)}">
+                                    <td colspan="9" class="text-center py-4 text-muted">
+                                        <i class="fas fa-info-circle mr-1"></i>Nenhum chamado encontrado com os filtros informados.
+                                    </td>
+                                </tr>
+                                <tr th:each="t : ${tickets}">
+                                    <td class="font-weight-bold" th:text="${t.id}">1</td>
+                                    <td><code th:text="${t.codigo}">TK-123</code></td>
+                                    <td th:text="${t.titulo}">Problema na tela</td>
+                                    <td th:text="${t.cliente != null ? t.cliente.nome : 'N/A'}">João Silva</td>
+                                    <td th:text="${t.equipamento != null ? t.equipamento.nome : 'N/A'}">Dell Inspiron</td>
+                                    <td>
+                                        <span class="badge" th:classappend="'badge-urgencia-' + ${t.urgencia.name()}"
+                                              th:text="${t.urgencia.descricao}">Média</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="'badge-status-' + ${t.status.name()}"
+                                              th:text="${t.statusFormatado}">Aberto</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(t.dataAbertura, 'dd/MM/yyyy HH:mm')}">20/11/2026 14:00</td>
+                                    <td class="text-right">
+                                        <a th:href="@{/tickets/{id}(id=${t.id})}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye mr-1"></i>Detalhes
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Paginação -->
+                <div class="card-footer bg-white d-flex justify-content-between align-items-center" th:if="${totalPaginas > 1}">
+                    <span class="text-muted small" th:text="'Página ' + (${paginaAtual} + 1) + ' de ' + ${totalPaginas}"></span>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" th:classappend="${paginaAtual == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/home(pagina=${paginaAtual - 1}, status=${statusSelecionado}, urgencia=${urgenciaSelecionada}, termo=${termoPesquisa})}">&laquo; Anterior</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaAtual} ? 'active'">
+                            <a class="page-link" th:href="@{/home(pagina=${i}, status=${statusSelecionado}, urgencia=${urgenciaSelecionada}, termo=${termoPesquisa})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${paginaAtual >= totalPaginas - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/home(pagina=${paginaAtual + 1}, status=${statusSelecionado}, urgencia=${urgenciaSelecionada}, termo=${termoPesquisa})}">Próxima &raquo;</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+
+</body>
+</html>

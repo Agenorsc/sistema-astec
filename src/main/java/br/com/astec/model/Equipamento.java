@@ -7,6 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_equipamento")
+@NamedQuery(name = "Equipamento.listarTodos", query = "SELECT e FROM Equipamento e ORDER BY e.nome")
 public class Equipamento {
 
     @Id
@@ -20,6 +21,19 @@ public class Equipamento {
 
     @Column(unique = true, length = 100)
     private String numeroSerie;
+
+    @ElementCollection
+    @CollectionTable(name = "tb_equipamento_tags", joinColumns = @JoinColumn(name = "equipamento_id"))
+    @Column(name = "tag", length = 50)
+    private List<String> tags = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "tb_equipamento_categoria",
+        joinColumns = @JoinColumn(name = "equipamento_id"),
+        inverseJoinColumns = @JoinColumn(name = "categoria_id")
+    )
+    private List<CategoriaEquipamento> categorias = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "equipamento")
@@ -73,5 +87,21 @@ public class Equipamento {
 
     public void setTickets(List<Ticket> tickets) {
         this.tickets = tickets;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public List<CategoriaEquipamento> getCategorias() {
+        return categorias;
+    }
+
+    public void setCategorias(List<CategoriaEquipamento> categorias) {
+        this.categorias = categorias;
     }
 }

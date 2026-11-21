@@ -2,6 +2,8 @@ package br.com.astec.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,11 @@ public class LaudoTecnico {
 
     private Double horasTrabalhadas;
 
+    private LocalDateTime dataFinalizacao;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valorTotal = BigDecimal.ZERO;
+
     @OneToOne
     @JoinColumn(name = "ticket_id", nullable = false, unique = true)
     private Ticket ticket;
@@ -27,6 +34,7 @@ public class LaudoTecnico {
     private List<ItemPecaSubstituida> pecasSubstituidas = new ArrayList<>();
 
     public LaudoTecnico() {
+        this.dataFinalizacao = LocalDateTime.now();
     }
 
     public LaudoTecnico(Long id, String diagnosticoSolucao, Double horasTrabalhadas, Ticket ticket) {
@@ -34,6 +42,16 @@ public class LaudoTecnico {
         this.diagnosticoSolucao = diagnosticoSolucao;
         this.horasTrabalhadas = horasTrabalhadas;
         this.ticket = ticket;
+        this.dataFinalizacao = LocalDateTime.now();
+    }
+
+    public void adicionarItem(ItemPecaSubstituida item) {
+        this.pecasSubstituidas.add(item);
+        item.setLaudoTecnico(this);
+    }
+
+    public List<ItemPecaSubstituida> getItensSubstituidos() {
+        return this.pecasSubstituidas;
     }
 
     public void finalizarAtendimento() {
@@ -66,6 +84,26 @@ public class LaudoTecnico {
 
     public void setHorasTrabalhadas(Double horasTrabalhadas) {
         this.horasTrabalhadas = horasTrabalhadas;
+    }
+
+    public void setHorasTrabalhadas(Integer horasTrabalhadas) {
+        this.horasTrabalhadas = horasTrabalhadas != null ? horasTrabalhadas.doubleValue() : null;
+    }
+
+    public LocalDateTime getDataFinalizacao() {
+        return dataFinalizacao;
+    }
+
+    public void setDataFinalizacao(LocalDateTime dataFinalizacao) {
+        this.dataFinalizacao = dataFinalizacao;
+    }
+
+    public BigDecimal getValorTotal() {
+        return valorTotal;
+    }
+
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
     }
 
     public Ticket getTicket() {

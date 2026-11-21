@@ -37,6 +37,13 @@ public class MensagemTicket {
         this.dataEnvio = LocalDateTime.now();
     }
 
+    public MensagemTicket(Ticket ticket, Usuario autor, String texto) {
+        this.ticket = ticket;
+        this.autor = autor;
+        this.texto = texto;
+        this.dataEnvio = LocalDateTime.now();
+    }
+
     public void enviarMensagem(String texto, Usuario autor, Ticket ticket) {
         this.texto = texto;
         this.autor = autor;

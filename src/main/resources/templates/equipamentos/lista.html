@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{base :: titulo('Inventário de Equipamentos')}"></div>
+
+        <div class="container">
+
+            <!-- Mensagem Flash -->
+            <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i><span th:text="${mensagemSucesso}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white font-weight-bold d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-laptop mr-2 text-primary"></i>Equipamentos e Dispositivos Registrados</span>
+                    <a th:href="@{/equipamentos/novo}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus mr-1"></i>Cadastrar Equipamento
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th># ID</th>
+                                    <th>Nome</th>
+                                    <th>Modelo</th>
+                                    <th>Número de Série</th>
+                                    <th>Categorias (@ManyToMany)</th>
+                                    <th>Tags (@ElementCollection)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(equipamentos)}">
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        Nenhum equipamento cadastrado.
+                                    </td>
+                                </tr>
+                                <tr th:each="equip : ${equipamentos}">
+                                    <td class="font-weight-bold" th:text="${equip.id}">1</td>
+                                    <td th:text="${equip.nome}">Notebook Dell</td>
+                                    <td th:text="${equip.modelo}">Latitude 5420</td>
+                                    <td><code th:text="${equip.numeroSerie}">DL-99482</code></td>
+                                    <td>
+                                        <span th:each="cat : ${equip.categorias}" class="badge badge-info mr-1" th:text="${cat.nome}">Hardware</span>
+                                    </td>
+                                    <td>
+                                        <span th:each="tg : ${equip.tags}" class="badge badge-secondary mr-1" th:text="${tg}">Dell</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a th:href="@{/home}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Voltar ao Painel Geral
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+
+</body>
+</html>

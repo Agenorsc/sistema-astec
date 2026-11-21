@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="main-content">
+        <div th:replace="~{base :: titulo('Abertura de Novo Chamado')}"></div>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white font-weight-bold">
+                            <i class="fas fa-edit mr-2 text-primary"></i>Preencha os dados do chamado técnico
+                        </div>
+                        <div class="card-body">
+                            <!-- Formulário Spring MVC com Bean Validation (Deck 4, Slides 26-32) -->
+                            <form th:action="@{/tickets/novo}" th:object="${requisicaoNovoTicket}" method="POST">
+
+                                <div class="form-group">
+                                    <label for="titulo" class="font-weight-bold">Título do Chamado *</label>
+                                    <input type="text" id="titulo" th:field="*{titulo}" th:errorclass="is-invalid"
+                                           class="form-control" placeholder="Ex: Notebook não liga após queda de energia">
+                                    <div class="invalid-feedback" th:errors="*{titulo}">
+                                        Erros do título
+                                    </div>
+                                    <small class="form-text text-muted">Mínimo de 5 e máximo de 150 caracteres.</small>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="clienteId" class="font-weight-bold">Cliente Solicitante *</label>
+                                        <select id="clienteId" th:field="*{clienteId}" th:errorclass="is-invalid" class="form-control">
+                                            <option value="">-- Selecione o Cliente --</option>
+                                            <option th:each="cli : ${clientes}" th:value="${cli.id}" th:text="${cli.nome} + ' (' + ${cli.email} + ')'"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:errors="*{clienteId}">
+                                            Selecione o cliente
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        <label for="equipamentoId" class="font-weight-bold">Equipamento *</label>
+                                        <select id="equipamentoId" th:field="*{equipamentoId}" th:errorclass="is-invalid" class="form-control">
+                                            <option value="">-- Selecione o Equipamento --</option>
+                                            <option th:each="equip : ${equipamentos}" th:value="${equip.id}" th:text="${equip.nome} + ' - ' + ${equip.modelo} + ' (S/N: ' + ${equip.numeroSerie} + ')'"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:errors="*{equipamentoId}">
+                                            Selecione o equipamento
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="urgencia" class="font-weight-bold">Nível de Urgência *</label>
+                                        <select id="urgencia" th:field="*{urgencia}" th:errorclass="is-invalid" class="form-control">
+                                            <option value="">-- Selecione a Urgência --</option>
+                                            <option th:each="ur : ${urgencias}" th:value="${ur}" th:text="${ur.descricao}"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:errors="*{urgencia}">
+                                            Selecione a urgência
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        <label for="tipoAtendimento" class="font-weight-bold">Tipo de Atendimento</label>
+                                        <select id="tipoAtendimento" th:field="*{tipoAtendimento}" class="form-control">
+                                            <option th:each="tipo : ${T(br.com.astec.model.enums.TipoAtendimentoEnum).values()}"
+                                                    th:value="${tipo}" th:text="${tipo.descricao}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="descricao" class="font-weight-bold">Descrição Detalhada do Defeito *</label>
+                                    <textarea id="descricao" th:field="*{descricao}" th:errorclass="is-invalid"
+                                              class="form-control" rows="4" placeholder="Descreva os sintomas apresentados, mensagens de erro, etc."></textarea>
+                                    <div class="invalid-feedback" th:errors="*{descricao}">
+                                        Erros da descrição
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a th:href="@{/home}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left mr-1"></i>Voltar ao Painel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-save mr-1"></i>Salvar e Abrir Chamado
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+
+</body>
+</html>
