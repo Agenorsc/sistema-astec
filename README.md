@@ -12,10 +12,7 @@
 **Curso:** Engenharia de Software / Sistemas de Informação  
 **Disciplina:** Programação WEB  
 **Professor:** Leonardo Vitazik Neto  
-**Equipe:**
-**AGENOR ALVISE**
-**FELIPE SANTOS**
-**HENRIQUE CEZAR DA SILVEIRA** 
+**Equipe:**AGENOR ALVISE - FELIPE SANTOS - HENRIQUE CEZAR DA SILVEIRA
 **Tecnologias:** Java 17, Spring Boot 3.3.4, Spring MVC, Thymeleaf, Spring Data JPA, Hibernate, Bean Validation (JSR-380), OpenAPI 3.0 (Swagger UI), Bootstrap 4.6.0, H2 In-Memory Database.
 
 ---
